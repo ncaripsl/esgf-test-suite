@@ -1,4 +1,4 @@
 esgf-tests
 ==========
 
-Python nosetest scripts for ESGF
+Python nosetests scripts for ESGF post installation test and validation
