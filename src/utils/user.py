@@ -6,7 +6,7 @@ import configuration as config
 
 _elements = {'firstName' : 'testfirstName',
              'lastName'  : 'testlastName',
-             'email'	 : 'nicolas.carenton@ipsl.jussieu.fr',
+             'email'	 : '',
 	     'userName' : 'testuserName',
 	     'password1' : 'testPassword1',
 	     'password2' : 'testPassword1'}
