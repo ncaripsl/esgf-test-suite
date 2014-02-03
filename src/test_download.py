@@ -34,6 +34,4 @@ class TestGridFtp(object):
 	def teardown_class(self):
                 # Delete downloaded file
                 if os.path.exists("/tmp/dest_file.nc"):
-                        os.remove("/tmp/dest_file.nc")
-		
-	
+                        os.remove("/tmp/dest_file.nc")	

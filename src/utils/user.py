@@ -4,27 +4,30 @@ import configuration as config
 
 
 
-_elements = {'firstName' : 'testfirstName',
-             'lastName'  : 'testlastName',
-             'email'	 : '',
-	     'userName' : 'testuserName',
-	     'password1' : 'testPassword1',
-	     'password2' : 'testPassword1'}
-
 class UserUtils(object):
         def __init__(self):
-		self.driver = webdriver.Firefox();
+                self.driver = webdriver.Firefox();
+
                 self.config = config.read_config();
+		self.account = self.config['account']
+                self.idp_server = self.config['servers']['idp_server']
+		
+                self.elements = {'firstName' : self.account['firstname'],
+                                 'lastName'  : self.account['lastname'],
+                                 'email'     : self.account['email'],
+                                 'userName'  : self.account['username'],
+                                 'password1' : self.account['password'],
+                                 'password2' : self.account['password']}
 
 
         def create_user(self):
-		self.driver.get("https://"+self.config['servers']['index_server']+"/esgf-web-fe/createAccount");
-
-		for element_name in _elements:
-			self.driver.find_element_by_name(element_name).send_keys(_elements[element_name]);
+		self.driver.get("https://"+self.idp_server+"/esgf-web-fe/createAccount");
+		
+		for element_name in self.elements:
+			self.driver.find_element_by_name(element_name).send_keys(self.elements[element_name]);
 
 		self.driver.find_element_by_css_selector("input[type=submit]").click();
-		#self.driver.quit();
+		self.driver.quit();
 
 
         def delete_user(self):
