@@ -13,22 +13,28 @@ class MyProxyUtils(object):
 		self.config = config.read_config()
 		self.cacertdir = os.path.expanduser("~/.esg/certificates")
 		self.credsfile = os.path.expanduser("~/.esg/credentials.pem")
-		self.myproxy = MyProxyClient(hostname=self.config['servers']['idp_server'])
+		self.myproxy = MyProxyClient(hostname=self.config['nodes']['idp_node'])
 		self.myproxy._setCACertDir(self.cacertdir)
 
 
 	def get_trustroots(self):
 		# Get trust roots
-		self.trustRoots = self.myproxy.getTrustRoots(self.config['account']['username'],
-							     self.config['account']['password'],
-	         					     writeToCACertDir=True,
-	  				       	             bootstrap=True)
-
+		try:
+			self.trustRoots = self.myproxy.getTrustRoots(self.config['account']['username'],
+							     	     self.config['account']['password'],
+	         					     	     writeToCACertDir=True,
+	  				       	             	     bootstrap=True)
+		except:
+			pass
 
 	def get_credentials(self):
 		# Get credentials (and trustroots)
-                self.credentials = self.myproxy.logon(self.config['account']['username'],
-                                                      self.config['account']['password'])
+		try:
+                	self.credentials = self.myproxy.logon(self.config['account']['username'],
+                                                      	      self.config['account']['password'])
+		except:
+			pass
+			return
 		# Write Credentials
 		with open(self.credsfile, 'w') as f:
 			f.write(self.credentials[0]+self.credentials[1])
