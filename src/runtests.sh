@@ -27,5 +27,4 @@ source ~/virtualenv/venv/bin/activate
 #fi
 
 #exit 0
-~/virtualenv/venv/bin/python ~/virtualenv/venv/bin/nosetests  --with-html -q
-#nosetests --with-html -v --nocapture
+~/virtualenv/venv/bin/python ~/virtualenv/venv/bin/nosetests  --with-html -v --nocapture
