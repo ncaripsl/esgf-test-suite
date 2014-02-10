@@ -1,9 +1,7 @@
 import requests
-from selenium import webdriver
+from splinter import Browser
 
 import configuration as config
-
-
 
 class UserUtils(object):
         def __init__(self):
@@ -11,6 +9,13 @@ class UserUtils(object):
 		self.account = self.config['account']
                 self.idp_server = self.config['nodes']['idp_node']
 		
+		# Abort test if esgf-web-fe is not reachable
+		r = requests.get("https://{0}/esgf-web-fe".format(self.idp_server), verify=False, timeout=1)
+                assert r.status_code == 200
+
+		self.browser = Browser('firefox')
+
+		# Mapping user data to fit to web-fe form 
                 self.elements = {'firstName' : self.account['firstname'],
                                  'lastName'  : self.account['lastname'],
                                  'email'     : self.account['email'],
@@ -19,19 +24,45 @@ class UserUtils(object):
                                  'password2' : self.account['password']}
 
 
+	def check_user_exists(self):
+		URL = "https://{0}/esgf-web-fe/login".format(self.idp_server)
+		OpenID = "https://{0}/esgf-idp/openid/{1}".format(self.idp_server, self.account['username'])
+
+		# Try to log in
+		self.browser.visit(URL)
+		self.browser.find_by_id('openid_identifier').fill(OpenID)
+		button = self.browser.find_by_value('Login')
+		button.click()
+
+		# User does not exist if unable to resolve openid
+		# assert has to be moved out of utils
+		assert self.browser.is_text_present("Error: unable to resolve OpenID identifier"), "User already exists"
+		self.browser.quit()
+		
         def create_user(self):
 		URL = "https://{0}/esgf-web-fe/createAccount".format(self.idp_server)
+        	self.browser.visit(URL)
+	
+		# Filling the form
+		for element_name in self.elements:
+			self.browser.find_by_name(element_name).fill(self.elements[element_name])
 
-		if (requests.get(URL, verify=False).status_code == 200):
-			self.driver = webdriver.Firefox()
-			self.driver.get(URL)
-		
-			for element_name in self.elements:
-				self.driver.find_element_by_name(element_name).send_keys(self.elements[element_name])
+      		button = self.browser.find_by_value('Submit')
+		button.click()
 
-			self.driver.find_element_by_css_selector("input[type=submit]").click()
-			
-			self.driver.quit()
+		# Parsing response
+		self.response = []		
+		if (self.browser.is_text_present("SUCCESS") == True):
+			self.response.append("SUCCESS")
+		else:
+			self.response.append("FAILURE")
+			selection = self.browser.find_by_tag('span')
+			for sel in selection:
+				if sel.has_class('myerror'):
+					self.response.append(sel.value)
 
-        def delete_user(self):
-		pass
+
+        def exit_browser(self):
+		self.browser.quit()
+
+

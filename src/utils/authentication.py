@@ -19,22 +19,15 @@ class MyProxyUtils(object):
 
 	def get_trustroots(self):
 		# Get trust roots
-		try:
-			self.trustRoots = self.myproxy.getTrustRoots(self.config['account']['username'],
+		self.trustRoots = self.myproxy.getTrustRoots(self.config['account']['username'],
 							     	     self.config['account']['password'],
 	         					     	     writeToCACertDir=True,
 	  				       	             	     bootstrap=True)
-		except:
-			pass
 
 	def get_credentials(self):
 		# Get credentials (and trustroots)
-		try:
-                	self.credentials = self.myproxy.logon(self.config['account']['username'],
+                self.credentials = self.myproxy.logon(self.config['account']['username'],
                                                       	      self.config['account']['password'])
-		except:
-			pass
-			return
 		# Write Credentials
 		with open(self.credsfile, 'w') as f:
 			f.write(self.credentials[0]+self.credentials[1])
