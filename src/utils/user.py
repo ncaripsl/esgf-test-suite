@@ -34,7 +34,7 @@ class UserUtils(object):
 		button = self.browser.find_by_value('Login')
 		button.click()
 
-		# User does not exist if unable to resolve openid
+		# User does not exist if unable to resolve OpenID
 		if(self.browser.is_text_present("Error: unable to resolve OpenID identifier")):
 			self.user_exists = False
 		else:
