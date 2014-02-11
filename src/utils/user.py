@@ -35,12 +35,10 @@ class UserUtils(object):
 		button.click()
 
 		# User does not exist if unable to resolve openid
-		# assert has to be moved out of utils to test func
 		if(self.browser.is_text_present("Error: unable to resolve OpenID identifier")):
 			self.user_exists = False
 		else:
 			self.user_exists = True
-		#self.browser.quit()
 		
         def create_user(self):
 		URL = "https://{0}/esgf-web-fe/createAccount".format(self.idp_server)
