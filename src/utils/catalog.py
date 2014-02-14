@@ -1,59 +1,98 @@
+import urllib2
+from lxml import etree
+import multiprocessing
+from multiprocessing import Queue
+
+
 import configuration as config
 
-from lxml import etree
-import urllib
-import re
+
 
 class ThreddsUtils(object):
         def __init__(self):
-                #self.config = config.read_config()
-                #self.data_node = self.config['nodes']['data_node'];
-                self.data_node = "esgf-node.ipsl.fr";
+		global q 
+		q = multiprocessing.JoinableQueue()
+		global out_q
+		out_q = Queue()
+		self.config = config.read_config()
+		self.data_node = self.config['nodes']['data_node']
+
+	def chunkIt(self, seq, num):
+        	avg = len(seq) / float(num)
+        	out = []
+        	last = 0.0
+
+        	while last < len(seq):
+                	out.append(seq[int(last):int(last + avg)])
+                	last += avg
+
+        	return out
 
 
-        def get_projects(self):
-                url = "http://{0}/thredds/catalog.xml".format(self.data_node);
-                content = urllib.urlopen(url).read();
-                projects = re.findall(r'"([/A-Za-z0-9_-]*)/catalog.xml"', content);
-                for pindex, pname in enumerate(projects):
-                        if '/' not in pname:
-				format_string = "/thredds/{0}/catalog.xml";
-			else:
-				format_string = "{0}/catalog.xml";
-			projects[pindex] = format_string.format(projects[pindex]);
-		return(projects);
-			
+	def get_files(self, catalogrefs):
+		res = []
+		for cr in catalogrefs:
+			try:
+				content = urllib2.urlopen(cr)
+			except:
+				return res
+			context = etree.iterparse(content, events=('end',), tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}dataset')
+			for event, ds in context:
+				for si in ds.iterchildren(tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}dataSize'):
+					res.append(ds.get('urlPath'))
+					res.append(si.values())
+					res.append(si.text)
+		return res
 
-	def get_datasets(self, projects):
-		for pindex, pname in enumerate(projects):
-			url = "http://{0}{1}".format(self.data_node, projects[pindex])
-                	content = urlib.urlopen(url).read();
-
-
-	def get_projects2(self):
-		url = "http://{0}/thredds/pmip3/catalog.xml".format(self.data_node);
-		doc = etree.parse(url);
-
-		#list_tmp=doc.xpath("/catalog/catalogRef")
-		#list_tmp=doc.xpath("/*")
-		#list_tmp=doc.xpath("/*/*")
-		#list_tmp=doc.xpath("/*/*")
-		#print "\nlist size=%d"%len(list_tmp)
-		#for cr in list_tmp:
-		#for cr in doc.xpath("/[local-name()='catalog']", namespaces={'thredds': 'http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0'}):
-		for cr in doc.xpath("//ns:catalog/ns:catalogRef",namespaces={'ns':'http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0'}): 
-			print "+++";
+	def worker(self):
+		for item in iter(q.get, None):
+			out_q.put(self.get_files(item))
+			q.task_done()
+		q.task_done()
 
 
-#		a = etree.tostring(doc);
-#		print a;
+	def get_catalogrefs(self):
 
+		nb_procs = 64
+
+		url = "http://{0}/thredds/esgcet/catalog.xml".format(self.data_node);
+		content = urllib2.urlopen(url)
+		context = etree.iterparse(content, events=('end',), tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}catalogRef')
+		urllist = []
+		for event, cr in context:
+                        path = cr.get('{http://www.w3.org/1999/xlink}href')
+                        urllist.append("http://{0}/thredds/esgcet/{1}".format(self.data_node, path))
+		chunk =  self.chunkIt(urllist, nb_procs)
+
+		procs = []
+		for i in range(nb_procs):
+			procs.append(multiprocessing.Process(target=self.worker))
+			procs[-1].daemon = True
+			procs[-1].start()
+
+		for num in range(nb_procs):
+			q.put(chunk[num])
+
+		q.join()
+
+		for p in procs:
+			q.put( None )
+
+		reslist = []
+		for k in procs:
+			reslist.append(out_q.get())
+
+		q.join()
+
+
+		for p in procs:
+			p.join()
+
+		for t in reslist:
+			for g in t:
+				pass
+				#print "reslist = ", g
 
 def test_thredds():
-        tu = ThreddsUtils();
-
-	tu.get_projects2();
-
-        #projects = tu.get_projects();
-	#datasets = tu.get_datasets(projects)
-
+        tu = ThreddsUtils()
+	catalogrefs = tu.get_catalogrefs()
