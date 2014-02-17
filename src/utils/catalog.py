@@ -2,7 +2,7 @@ import urllib2
 from lxml import etree
 import multiprocessing
 from multiprocessing import Queue
-
+from operator import itemgetter
 
 import configuration as config
 
@@ -38,10 +38,25 @@ class ThreddsUtils(object):
 				return res
 			context = etree.iterparse(content, events=('end',), tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}dataset')
 			for event, ds in context:
-				for si in ds.iterchildren(tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}dataSize'):
-					res.append(ds.get('urlPath'))
-					res.append(si.values())
-					res.append(si.text)
+				if ds.get('urlPath') and  "aggregation" not in ds.get('urlPath'):
+					dataset = []
+					dataset.append(ds.get('urlPath'))
+					for si in ds.iterchildren(tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}dataSize'):
+						units = si.get('units')
+						if units == 'Kbytes':
+							size = float(si.text) / 1024
+						elif units == 'Mbytes':
+							size = float(si.text)
+						elif units == 'Gbytes':
+							size = float(si.text) * 1024
+						else:
+							size = float('inf')
+						dataset.append(size)
+					for sv in ds.iterchildren(tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}serviceName'):
+                                        	dataset.append(sv.text)
+					for acc in ds.iterchildren(tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}access'):
+						dataset.append(acc.get('serviceName'))
+					res.append(tuple(dataset))
 		return res
 
 	def worker(self):
@@ -53,7 +68,7 @@ class ThreddsUtils(object):
 
 	def get_catalogrefs(self):
 
-		nb_procs = 64
+		nb_procs = 32
 
 		url = "http://{0}/thredds/esgcet/catalog.xml".format(self.data_node);
 		content = urllib2.urlopen(url)
@@ -80,7 +95,7 @@ class ThreddsUtils(object):
 
 		reslist = []
 		for k in procs:
-			reslist.append(out_q.get())
+			reslist.extend(out_q.get())
 
 		q.join()
 
@@ -88,10 +103,7 @@ class ThreddsUtils(object):
 		for p in procs:
 			p.join()
 
-		for t in reslist:
-			for g in t:
-				pass
-				#print "reslist = ", g
+		print min(reslist,key=itemgetter(1))
 
 def test_thredds():
         tu = ThreddsUtils()
