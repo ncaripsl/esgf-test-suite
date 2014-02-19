@@ -3,6 +3,7 @@ from lxml import etree
 import multiprocessing
 from multiprocessing import Queue
 from operator import itemgetter
+from StringIO import StringIO
 
 import configuration as config
 
@@ -30,34 +31,52 @@ class ThreddsUtils(object):
 
 
 	def get_files(self, catalogrefs):
-		res = []
+		datasetlist = []
 		for cr in catalogrefs:
 			try:
 				content = urllib2.urlopen(cr)
+				data = content.read()
 			except:
-				return res
-			context = etree.iterparse(content, events=('end',), tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}dataset')
-			for event, ds in context:
-				if ds.get('urlPath') and  "aggregation" not in ds.get('urlPath'):
+				return datasetlist
+			
+			services_def = {}
+			context = etree.iterparse(StringIO(data), tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}service')
+			for events, sv in context:
+				if sv.get('serviceType') != 'Compound':
+					services_def.update({sv.get('name'):sv.get('serviceType')})
+
+			context = etree.iterparse(StringIO(data), tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}dataset')
+			for events, ds in context:
+				if ds.get('urlPath'):
 					dataset = []
 					dataset.append(ds.get('urlPath'))
-					for si in ds.iterchildren(tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}dataSize'):
-						units = si.get('units')
-						if units == 'Kbytes':
-							size = float(si.text) / 1024
-						elif units == 'Mbytes':
-							size = float(si.text)
-						elif units == 'Gbytes':
-							size = float(si.text) * 1024
-						else:
-							size = float('inf')
-						dataset.append(size)
+
+					if "aggregation" in ds.get('urlPath'):
+						dataset.append(float('inf'))
+					else:
+						for si in ds.iterchildren(tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}dataSize'):
+							units = si.get('units')
+							if units == 'Kbytes':
+								size = float(si.text) / 1024
+							elif units == 'Mbytes':
+								size = float(si.text)
+							elif units == 'Gbytes':
+								size = float(si.text) * 1024
+							else:
+								size = float('inf')
+							dataset.append(size)
+
+					ds_services = []
 					for sv in ds.iterchildren(tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}serviceName'):
-                                        	dataset.append(sv.text)
+                                        	ds_services.append(services_def[sv.text])
 					for acc in ds.iterchildren(tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}access'):
-						dataset.append(acc.get('serviceName'))
-					res.append(tuple(dataset))
-		return res
+						try:
+							ds_services.append(services_def[acc.get('serviceName')])
+						except:
+							pass
+					dataset.append(ds_services)
+					datasetlist.append(dataset)
+		return datasetlist
 
 	def worker(self):
 		for item in iter(q.get, None):
@@ -68,7 +87,7 @@ class ThreddsUtils(object):
 
 	def get_catalogrefs(self):
 
-		nb_procs = 32
+		nb_procs = 64
 
 		url = "http://{0}/thredds/esgcet/catalog.xml".format(self.data_node);
 		content = urllib2.urlopen(url)
@@ -78,7 +97,7 @@ class ThreddsUtils(object):
                         path = cr.get('{http://www.w3.org/1999/xlink}href')
                         urllist.append("http://{0}/thredds/esgcet/{1}".format(self.data_node, path))
 		chunk =  self.chunkIt(urllist, nb_procs)
-
+		
 		procs = []
 		for i in range(nb_procs):
 			procs.append(multiprocessing.Process(target=self.worker))
@@ -103,6 +122,7 @@ class ThreddsUtils(object):
 		for p in procs:
 			p.join()
 
+		reslist = [i for i in reslist if 'HTTPServer' in i[2]]
 		print min(reslist,key=itemgetter(1))
 
 def test_thredds():
