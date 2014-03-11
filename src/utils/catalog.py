@@ -11,14 +11,20 @@ import configuration as config
 
 class ThreddsUtils(object):
         def __init__(self):
-		global q 
-		q = multiprocessing.JoinableQueue()
-		global out_q
-		out_q = Queue()
+		global in_queue 
+		in_queue = multiprocessing.JoinableQueue()
+		global out_queue
+		out_queue = Queue()
+
 		self.config = config.read_config()
 		self.data_node = self.config['nodes']['data_node']
+		#self.data_node = 'esg.cnrm-game-meteo.fr'
+		#self.data_node = 'bmbf-ipcc-ar5.dkrz.de'
+		#self.data_node = 'tds.ucar.edu'
+		#self.data_node = 'vesg.ipsl.fr'
+		#self.data_node = 'cmip-dn1.badc.rl.ac.uk'
 
-	def chunkIt(self, seq, num):
+	def chunk_it(self, seq, num):
         	avg = len(seq) / float(num)
         	out = []
         	last = 0.0
@@ -78,53 +84,71 @@ class ThreddsUtils(object):
 					datasetlist.append(dataset)
 		return datasetlist
 
-	def worker(self):
-		for item in iter(q.get, None):
-			out_q.put(self.get_files(item))
-			q.task_done()
-		q.task_done()
+	def worker(self, catalogrefs):
+		datasetlist = []
+			
+		#
 
+		return self.get_files(catalogrefs)
 
-	def get_catalogrefs(self):
+	def queue_manager(self):
+		for item in iter(in_queue.get, None):
+			out_queue.put(self.worker(item))
+			in_queue.task_done()
+		in_queue.task_done()
 
-		nb_procs = 64
-
-		url = "http://{0}/thredds/esgcet/catalog.xml".format(self.data_node);
-		content = urllib2.urlopen(url)
-		context = etree.iterparse(content, events=('end',), tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}catalogRef')
-		urllist = []
-		for event, cr in context:
-                        path = cr.get('{http://www.w3.org/1999/xlink}href')
-                        urllist.append("http://{0}/thredds/esgcet/{1}".format(self.data_node, path))
-		chunk =  self.chunkIt(urllist, nb_procs)
+	def map_mprocesses(self, catalogrefs):
 		
-		procs = []
-		for i in range(nb_procs):
-			procs.append(multiprocessing.Process(target=self.worker))
-			procs[-1].daemon = True
-			procs[-1].start()
+		processes = []
 
-		for num in range(nb_procs):
-			q.put(chunk[num])
+		for i in catalogrefs:
+			processes.append(multiprocessing.Process(target=self.queue_manager))
+			processes[-1].daemon = True
+			processes[-1].start()
 
-		q.join()
+		for cr in catalogrefs:
+			in_queue.put(cr)
 
-		for p in procs:
-			q.put( None )
+		in_queue.join()
+
+		for p in processes:
+			in_queue.put(None)
 
 		reslist = []
-		for k in procs:
-			reslist.extend(out_q.get())
+		for p in processes:
+			reslist.extend(out_queue.get())
 
-		q.join()
+		in_queue.join()
 
-
-		for p in procs:
+		for p in processes:
 			p.join()
 
-		reslist = [i for i in reslist if 'HTTPServer' in i[2]]
-		print min(reslist,key=itemgetter(1))
+		return reslist
+
+	def get_catalogrefs(self):
+        	url = "http://{0}/thredds/esgcet/catalog.xml".format(self.data_node);
+        	content = urllib2.urlopen(url)
+        	doc = etree.iterparse(content, events=('end',), tag='{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}catalogRef')
+        	catalogrefs = []
+        	for event, cr in doc:
+        		path = cr.get('{http://www.w3.org/1999/xlink}href')
+        		if ".mon." in path:
+        			catalogrefs.append("http://{0}/thredds/esgcet/{1}".format(self.data_node, path))
+        	return catalogrefs
+
+
+	def get_endpoints(self):
+
+		nb_processes = multiprocessing.cpu_count() * 16
+
+		catalogrefs = self.get_catalogrefs()
+		catalogrefs = self.chunk_it(catalogrefs, nb_processes)
+		
+		res = self.map_mprocesses(catalogrefs)
+
+		res = [i for i in res if 'HTTPServer' in i[2]]
+		print min(res,key=itemgetter(1))
 
 def test_thredds():
         tu = ThreddsUtils()
-	catalogrefs = tu.get_catalogrefs()
+	catalogrefs = tu.get_endpoints()
