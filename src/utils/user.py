@@ -15,7 +15,7 @@ class UserUtils(object):
 
 		self.browser = Browser('firefox')
 
-		# Mapping user data to fit to web-fe form 
+		# Mapping user data to fit to web-fe user creation form 
                 self.elements = {'firstName' : self.account['firstname'],
                                  'lastName'  : self.account['lastname'],
                                  'email'     : self.account['email'],
@@ -31,8 +31,7 @@ class UserUtils(object):
 		# Try to log in
 		self.browser.visit(URL)
 		self.browser.find_by_id('openid_identifier').fill(OpenID)
-		button = self.browser.find_by_value('Login')
-		button.click()
+		self.browser.find_by_value('Login').click()
 
 		# User does not exist if unable to resolve OpenID
 		if(self.browser.is_text_present("Error: unable to resolve OpenID identifier")):
@@ -48,8 +47,7 @@ class UserUtils(object):
 		for element_name in self.elements:
 			self.browser.find_by_name(element_name).fill(self.elements[element_name])
 
-      		button = self.browser.find_by_value('Submit')
-		button.click()
+      		self.browser.find_by_value('Submit').click()
 
 		# Parsing response
 		self.response = []		

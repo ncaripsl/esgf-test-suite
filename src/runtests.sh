@@ -27,4 +27,4 @@ source ~/virtualenv/venv/bin/activate
 #fi
 
 #exit 0
-~/virtualenv/venv/bin/python ~/virtualenv/venv/bin/nosetests --nologcapture -v 
+~/virtualenv/venv/bin/python ~/virtualenv/venv/bin/nosetests --nologcapture -v  --nocapture

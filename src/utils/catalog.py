@@ -177,16 +177,15 @@ class ThreddsUtils(object):
 
 		# Getting projects href links from main catalog (http://data_node/thredds/catalog.xml)
 		projects = self.get_projects()
-		
+
 		# Getting and chunking catalogrefs href links from project catalogs (ex: http://data_node/thredds/geomip/catalog.xml)
 		catalogrefs = self.get_catalogrefs(projects)
 		chunked_catalogrefs = self.chunk_it(catalogrefs, nb_chunks)
 		
 		# Starting multiprocessed work
 		endpoints = self.map_processes(chunked_catalogrefs)
-
-		endpoints = [i for i in endpoints if 'HTTPServer' in i[2]]
-		print min(endpoints,key=itemgetter(1))
+		
+		return endpoints
 
 def test_thredds():
         tu = ThreddsUtils()
