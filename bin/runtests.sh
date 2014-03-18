@@ -27,4 +27,4 @@ source ~/virtualenv/venv/bin/activate
 #fi
 
 #exit 0
-~/virtualenv/venv/bin/python ~/virtualenv/venv/bin/nosetests --nologcapture -v  --nocapture
+~/virtualenv/venv/bin/python ~/virtualenv/venv/bin/nosetests ~/code/esgf-test-suite/esgf-test-suite --nologcapture -v --nocapture

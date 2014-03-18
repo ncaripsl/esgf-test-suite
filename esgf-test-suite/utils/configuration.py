@@ -4,7 +4,9 @@ import sys
 from ConfigParser import SafeConfigParser
 
 def read_config():
-	filePath = os.getcwd()+"/configuration.ini"
+	#filePath = os.getcwd()+"/configuration.ini"
+	filePath = os.path.expanduser("~") + "/code//esgf-test-suite/esgf-test-suite/configuration.ini"
+
 	parser = SafeConfigParser()
 
 	parser.readfp(open(filePath))
