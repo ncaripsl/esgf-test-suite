@@ -29,4 +29,5 @@ export PYTHONPATH=$PYTHONPATH:$PWD
 #exit 0
 #
 #~/virtualenv/venv/bin/python ~/virtualenv/venv/bin/nosetests `python -m site --user-site`/esgf_test_suite-0.1-py2.7.egg/esgf_test_suite --nologcapture -v --nocapture
-nosetests `python -m site --user-site`/esgf_test_suite-0.1-py2.7.egg/esgf_test_suite --nologcapture -v --nocapture
+#nosetests `python -m site --user-site`/esgf_test_suite-0.1-py2.7.egg/esgf_test_suite -v --nocapture
+nosetests ../
