@@ -1,0 +1,3 @@
+recursive-include esgf_test_suite *
+recursive-include bin
+include *.md
