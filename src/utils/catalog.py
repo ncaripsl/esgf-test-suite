@@ -102,6 +102,7 @@ class ThreddsUtils(object):
 				data = content.read()
 			except:
 				continue
+
 			# Parsing services definition
 			services_def = self.get_services_definition(data)
 			# Parsing datasets
@@ -142,26 +143,45 @@ class ThreddsUtils(object):
 
 		return datasets_list
 
+	def filter_catalogrefs(self, proj_url, matcher):
+		filtered = []
+
+		content = urllib2.urlopen(proj_url)
+		for event, cr in etree.iterparse(content, events=('end',), tag=catalog_ns + 'catalogRef'):
+        		path = cr.get('{http://www.w3.org/1999/xlink}href')
+                        if matcher in path:
+                        	filtered.append(re.sub('catalog.xml', '', proj_url) + path)
+
+		return filtered
+
+
 	def get_catalogrefs(self, projects):
 		catalogrefs = []
 
 		for proj_url in projects:
-        		content = urllib2.urlopen(proj_url)
+			try:
+        			content = urllib2.urlopen(proj_url)
+			except:
+				continue
 		
 			# Parsing catalogRef xml entries
-        		for event, cr in etree.iterparse(content, events=('end',), tag=catalog_ns + 'catalogRef'):
-				# Only interested in monthly datasets
-        			path = cr.get('{http://www.w3.org/1999/xlink}href')
-        			if ".mon." in path:
-					catalogrefs.append(re.sub('catalog.xml', '', proj_url) + path)
+			catalogrefs = self.filter_catalogrefs(proj_url, '.fx.')
+			if len(catalogrefs) == 0:
+				catalogrefs = self.filter_catalogrefs(proj_url, '.mon.')
+				if len(catalogrefs) == 0:
+					catalogrefs = self.filter_catalogrefs(proj_url, '')
 
         	return catalogrefs
 
 	def get_projects(self):
-		main_url = "http://{0}/thredds/catalog.xml".format(self.data_node);
-		content = urllib2.urlopen(main_url)
-
 		projects = []
+		main_url = "http://{0}/thredds/catalog.xml".format(self.data_node);
+
+		try:
+			content = urllib2.urlopen(main_url)
+		except:
+			return projects
+			
                 for event, cr in etree.iterparse(content, events=('end',), tag=catalog_ns + 'catalogRef'):
 			path = cr.get('{http://www.w3.org/1999/xlink}href')
 			# Exclude DatasetScans
@@ -172,6 +192,8 @@ class ThreddsUtils(object):
 
 
 	def get_endpoints(self):
+		endpoints = []
+
 		# Determining number of processes and chunks
 		nb_chunks = multiprocessing.cpu_count() * 16
 
@@ -186,7 +208,3 @@ class ThreddsUtils(object):
 		endpoints = self.map_processes(chunked_catalogrefs)
 		
 		return endpoints
-
-def test_thredds():
-        tu = ThreddsUtils()
-	catalogrefs = tu.get_endpoints()
