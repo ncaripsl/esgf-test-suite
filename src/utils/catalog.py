@@ -12,6 +12,7 @@ import configuration as config
 
 class ThreddsUtils(object):
         def __init__(self):
+		# init
 		global in_queue 
 		in_queue = multiprocessing.JoinableQueue()
 		global out_queue
