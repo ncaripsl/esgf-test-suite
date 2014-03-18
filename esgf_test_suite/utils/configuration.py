@@ -1,11 +1,13 @@
 import os
 import sys
+import site
 
 from ConfigParser import SafeConfigParser
 
 def read_config():
 	#filePath = os.getcwd()+"/configuration.ini"
-	filePath = os.path.expanduser("~") + "/code//esgf-test-suite/esgf-test-suite/configuration.ini"
+	#filePath = os.path.expanduser("~") + "/code//esgf-test-suite/esgf-test-suite/configuration.ini"
+	filePath = site.getusersitepackages() + "/esgf_test_suite/esgf_test_suite/configuration.ini"
 
 	parser = SafeConfigParser()
 

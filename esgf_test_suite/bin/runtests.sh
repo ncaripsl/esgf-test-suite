@@ -7,7 +7,7 @@ TYPE=$1
 export PYTHONPATH=$PYTHONPATH:$PWD
 
 # Activate target virtual env.
-source ~/virtualenv/venv/bin/activate
+#source ~/virtualenv/venv/bin/activate
 
 # Serialization tests.
 #if [ $TYPE = "s" ]; then
@@ -27,4 +27,6 @@ source ~/virtualenv/venv/bin/activate
 #fi
 
 #exit 0
-~/virtualenv/venv/bin/python ~/virtualenv/venv/bin/nosetests ~/code/esgf-test-suite/esgf-test-suite --nologcapture -v --nocapture
+
+#~/virtualenv/venv/bin/python ~/virtualenv/venv/bin/nosetests `python -m site --user-site`/esgf_test_suite-0.1-py2.7.egg/esgf_test_suite --nologcapture -v --nocapture
+nosetests `python -m site --user-site`/esgf_test_suite-0.1-py2.7.egg/esgf_test_suite --nologcapture -v --nocapture
