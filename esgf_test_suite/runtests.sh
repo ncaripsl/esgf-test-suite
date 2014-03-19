@@ -27,8 +27,8 @@ export PYTHONPATH=$PYTHONPATH:$PWD
 #fi
 
 script_path="$(readlink -f ${BASH_SOURCE[0]})"
-dir_path="$(dirname $_script)"
+dir_path="$(dirname $script_path)"
 
-nosetests $dir_path -v --nocapture --exe
+nosetests $dir_path -v --nocapture --logcapture --exe
 
 exit 0
