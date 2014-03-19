@@ -56,6 +56,9 @@ class TestDownload(object):
 
 		browser = Browser('firefox', profile_preferences=pf)
 		browser.visit(url)
+		if browser.status_code.is_success() is True:
+			browser.quit()
+			return
 
 		browser.find_by_id('openid_identifier').fill(OpenID)
  		browser.find_by_value('GO').click()
