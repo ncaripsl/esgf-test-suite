@@ -30,4 +30,9 @@ export PYTHONPATH=$PYTHONPATH:$PWD
 #
 #~/virtualenv/venv/bin/python ~/virtualenv/venv/bin/nosetests `python -m site --user-site`/esgf_test_suite-0.1-py2.7.egg/esgf_test_suite --nologcapture -v --nocapture
 #nosetests `python -m site --user-site`/esgf_test_suite-0.1-py2.7.egg/esgf_test_suite -v --nocapture
-nosetests ../
+_script="$(readlink -f ${BASH_SOURCE[0]})"
+_base="$(dirname $_script)"
+echo $_script
+echo $_base
+
+#nosetests 
