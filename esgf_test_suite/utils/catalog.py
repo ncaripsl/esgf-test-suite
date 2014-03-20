@@ -142,6 +142,11 @@ class ThreddsUtils(object):
 		for p in processes:
 			datasets_list.extend(out_queue.get())
 
+		in_queue.join()
+
+		for p in processes:
+			p.join()
+
 		return datasets_list
 
 	def filter_catalogrefs(self, proj_url, matcher):
