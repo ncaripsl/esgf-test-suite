@@ -26,7 +26,7 @@ pip install esgf_test_suite
 ## Configuration:
 
 ```
-vi [Python eggs installation dir]/esgf_test_suite/configuration.ini   
+vi [installation_dir]/esgf_test_suite/configuration.ini   
 ```
 
 Modify the nodes section. If several nodes are specified, they all should be in the same federation. Account section do not need to be modified.  
@@ -34,5 +34,5 @@ Modify the nodes section. If several nodes are specified, they all should be in 
 ## Usage:
 
 ```
-[Python eggs installation dir]/esgf_test_suite/runtests.sh  
+[installation_dir]/esgf_test_suite/runtests.sh  
 ```
