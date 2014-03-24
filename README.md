@@ -5,7 +5,7 @@ Python nosetests scripts for ESGF integration test and validation
 
 ## Purpose and limits of this tool:
 
-ESGF Test Suite is a full python application. It is designed to perform integration tests on ESGF nodes. At this point of time, the scope is to test a single data node and its three peer services (idp services, index services and compute services). 
+ESGF Test Suite is a full python application. It is designed to perform integration tests on ESGF nodes. At this point of time, the scope is to test a single data node and its three peer services (idp services, index services and compute services).  
 ESGF Test Suite offers to run high level tests from a desktop so the tested node can be validated from the end user's perspective. 
 Current developments will also let admins to test and validate the stack by running tests on the node itself.
 
