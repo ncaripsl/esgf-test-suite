@@ -19,14 +19,20 @@ firefox
 
 ## Installation:
 
+```
 pip install esgf_test_suite
+```
 
 ## Configuration:
 
+```
 [Python eggs installation dir]/esgf_test_suite/configuration.ini   
+```
+
 Modify the nodes section. If several nodes are specified, they all should be in the same federation. Account section do not need to be modified.  
 
 ## Usage:
 
+```
 [Python eggs installation dir]/esgf_test_suite/runtests.sh  
-
+```
