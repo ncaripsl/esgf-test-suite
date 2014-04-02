@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='esgf_test_suite',
-      version='0.1',
+      version='0.2',
       description='Nose scripts for ESGF integration test and validation',
       url='http://github.com/ncaripsl/esgf-test-suite',
       author='Nicolas Carenton',

@@ -1,0 +1,6 @@
+nose
+pyOpenSSL
+MyProxyClient
+requests
+lxml
+splinter
