@@ -9,7 +9,7 @@ import utils.configuration as config
 import utils.catalog as cat
 import utils.user as usr
 
-import requests
+
 
 def setup_module():
 	global _mu

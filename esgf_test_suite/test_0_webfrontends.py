@@ -21,7 +21,7 @@ def teardown_module():
 
 class TestWebFrontEnds(object):
 	def check_frontend_availability(self, URL):
-		r = requests.get(URL, verify=False, timeout=3)
+		r = requests.get(URL, verify=False, timeout=5)
 		assert r.status_code == 200
 
 	def test_frontends_availability(self):
