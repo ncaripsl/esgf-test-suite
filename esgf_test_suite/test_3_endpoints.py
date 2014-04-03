@@ -9,7 +9,7 @@ import utils.configuration as config
 import utils.catalog as cat
 import utils.user as usr
 
-
+import requests
 
 def setup_module():
 	global _mu
@@ -37,8 +37,6 @@ class TestDownload(object):
 		self.idp_node = self.config['nodes']['idp_node']
 		self.username = self.config['account']['username']
 		self.password = self.config['account']['password']
-		os.environ['X509_USER_PROXY'] = os.path.expanduser("~/.esg/credentials.pem")
-		os.environ['X509_CERT_DIR'] = os.path.expanduser("~/.esg/certificates")
 
 	def get_endpoint_path(self, service):
 		service_endpoints = [i for i in endpoints if service in i[2]] #Sort by service
@@ -56,6 +54,7 @@ class TestDownload(object):
 
 		browser = Browser('firefox', profile_preferences=pf)
 		browser.visit(url)
+
 		if browser.status_code.is_success() is True:
 			browser.quit()
 			return
@@ -82,6 +81,8 @@ class TestDownload(object):
 	def test_1_globus_url_copy(self):
 		path = self.get_endpoint_path('GridFTP')
 		url = "gsiftp://{0}:2811//{1}".format(self.data_node, path)
+		os.environ['X509_USER_PROXY'] = os.path.expanduser("~/.esg/credentials.pem")
+                os.environ['X509_CERT_DIR'] = os.path.expanduser("~/.esg/certificates")
 		a = subprocess.check_call(["globus-url-copy", "-b", url, "/tmp/dest_file.nc" ])
 
 	@classmethod
