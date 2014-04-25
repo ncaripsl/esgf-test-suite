@@ -171,11 +171,11 @@ class ThreddsUtils(object):
 				continue
 		
 			# Parsing catalogRef xml entries
-			catalogrefs = self.filter_catalogrefs(proj_url, '.fx.')
-			if len(catalogrefs) == 0:
-				catalogrefs = self.filter_catalogrefs(proj_url, '.mon.')
-				if len(catalogrefs) == 0:
-					catalogrefs = self.filter_catalogrefs(proj_url, '')
+			catalogrefs.extend(self.filter_catalogrefs(proj_url, '.fx.'))
+                        if len(catalogrefs) == 0:
+                                catalogrefs.extend(self.filter_catalogrefs(proj_url, '.mon.'))
+                                if len(catalogrefs) == 0:
+                                        catalogrefs.extend(self.filter_catalogrefs(proj_url, ''))
 
         	return catalogrefs
 
