@@ -8,7 +8,6 @@ setup(name='esgf-test-suite',
       author_email='nicolas.carenton@ipsl.jussieu.fr',
       license='IPSL',
       packages=find_packages(),
-      package_data={'esgf-test-suite': ['configuration.ini']},
       install_requires=[
           'nose',
           'pyOpenSSL==0.13.1',
