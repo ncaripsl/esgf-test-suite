@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(name='esgf-test-suite',
       version='0.1',
@@ -7,7 +7,8 @@ setup(name='esgf-test-suite',
       author='Nicolas Carenton',
       author_email='nicolas.carenton@ipsl.jussieu.fr',
       license='IPSL',
-      packages=['esgf-test-suite'],
+      packages=find_packages(),
+      package_data={'esgf-test-suite': ['configuration.ini']},
       install_requires=[
           'nose',
           'pyOpenSSL==0.13.1',

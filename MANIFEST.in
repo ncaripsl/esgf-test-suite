@@ -1,2 +1,2 @@
-recursive-include esgf_test_suite *
+recursive-include esgf-test-suite *
 include *.md
