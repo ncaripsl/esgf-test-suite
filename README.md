@@ -25,20 +25,14 @@ Command for Red Hat / CentOS / Scientifix Linux:
 
 ## Installation:
 
-```
-pip install esgf-test-suite
-```
+     pip install esgf-test-suite
 
 ## Configuration:
 
-```
-vi [installation_dir]/esgf-test-suite/configuration.ini   
-```
+     vi [installation_dir]/esgf-test-suite/configuration.ini   
 
 Modify the nodes section. If several nodes are specified, they all should be in the same federation. Account section do not need to be modified.  
 
 ## Usage:
 
-```
-[installation_dir]/esgf-test-suite/runtests.sh  
-```
+     [installation_dir]/esgf-test-suite/runtests.sh
