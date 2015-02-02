@@ -13,10 +13,10 @@ Current developments will also let admins to test and validate the stack by runn
 
 ## Requirements:
 
-Shell environment  
-Python 2.6 or higher
-Firefox
-globus-url-copy
+ - Shell environment  
+ - Python 2.6 or higher
+ - Firefox
+ - globus-url-copy
 
 Command for Red Hat / CentOS / Scientifix Linux:
 
