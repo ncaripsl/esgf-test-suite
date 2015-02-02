@@ -14,10 +14,13 @@ Current developments will also let admins to test and validate the stack by runn
 ## Requirements:
 
 Shell environment  
-Python 2.6  
-myproxy-logon  
-globus-url-copy  
-firefox  
+Python 2.6 or higher
+Firefox
+globus-url-copy
+
+Command for Red Hat / CentOS / Scientifix Linux:
+yum install python-devel openssl-devel libxml2-devel libxslt-devel globus-gass-copy-progs firefox
+
 
 ## Installation:
 
