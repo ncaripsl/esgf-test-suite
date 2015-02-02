@@ -20,7 +20,7 @@ Current developments will also let admins to test and validate the stack by runn
 
 Command for Red Hat / CentOS / Scientifix Linux:
 
-yum install python-devel openssl-devel libxml2-devel libxslt-devel globus-gass-copy-progs firefox
+     yum install python-devel openssl-devel libxml2-devel libxslt-devel globus-gass-copy-progs firefox
 
 
 ## Installation:
