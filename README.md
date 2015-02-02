@@ -19,6 +19,7 @@ Firefox
 globus-url-copy
 
 Command for Red Hat / CentOS / Scientifix Linux:
+
 yum install python-devel openssl-devel libxml2-devel libxslt-devel globus-gass-copy-progs firefox
 
 
