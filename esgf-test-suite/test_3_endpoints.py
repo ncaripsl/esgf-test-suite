@@ -3,6 +3,7 @@ import shutil
 import subprocess
 from splinter import Browser
 from operator import itemgetter
+from nose.plugins.skip import Skip, SkipTest
 
 import utils.authentication as auth
 import utils.configuration as config
@@ -39,10 +40,15 @@ class TestDownload(object):
 		self.password = self.config['account']['password']
 
 	def get_endpoint_path(self, service):
-		service_endpoints = [i for i in endpoints if service in i[2]] #Sort by service
-		path = min(service_endpoints,key=itemgetter(1))[0] #Pick smallest dataset
-		
-		return path
+                if not endpoints:
+                        raise SkipTest("No available endpoints at {1}".format(service, self.data_node))
+                else:
+                        service_endpoints = [i for i in endpoints if service in i[2]] #Sort by service
+                        if not service_endpoints:
+                                raise SkipTest("No available {0} endpoints at {1}".format(service, self.data_node))
+                        else:
+                                path = min(service_endpoints,key=itemgetter(1))[0] #Pick smallest dataset 
+                                return path
 
 	def test_0_http_browser_download(self):
 		path = self.get_endpoint_path('HTTPServer')
