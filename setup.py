@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='esgf-test-suite',
-      version='0.2',
+      version='0.2.1',
       description='Nose scripts for ESGF integration test and validation',
       url='http://github.com/ESGF/esgf-test-suite',
       author='Nicolas Carenton',
@@ -9,7 +9,7 @@ setup(name='esgf-test-suite',
       license='IPSL',
       packages=find_packages(),
       install_requires=[
-          'nose',
+          'nose==1.3.4',
           'pyOpenSSL==0.13.1',
 	  'MyProxyClient',
 	  'requests==2.2.1',
