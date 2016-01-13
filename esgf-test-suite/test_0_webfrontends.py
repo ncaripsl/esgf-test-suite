@@ -5,10 +5,10 @@ import utils.configuration as config
 
 
 _services = {'idp_node'		: ['esgf-idp'],
-	     'index_node'	: ['esgf-web-fe'],
+	     'index_node'	: [''],
 	     'compute_node'	: ['las'],
-	     'data_node'	: ['esgf-node-manager', 'esg-orp',
-                         	   'esgf-desktop', 'esgf-dashboard',
+	     'data_node'	: ['esg-orp',
+                         	   'esgf-desktop',
                          	   'thredds']}
 
 def setup_module():
